@@ -1,7 +1,7 @@
 import argparse
-import socket
-import struct
 import threading
+
+from listener import Listener
 
 
 def run_server(ip, port):
@@ -15,28 +15,15 @@ def run_server(ip, port):
         Handle a single given connection. Currently prints data.
         """
         with connection:
-            chunks = []
-            while True:
-                data = connection.recv(4096)
-                if not data:
-                    break
-                chunks.append(data)
-            received_data = b"".join(chunks)
-            data_length = struct.unpack("<I", received_data[:4])[0]
-            payload = received_data[4:4 + data_length]
+            payload = connection.receive_message()
             with lock:
                 print(f"Received data: {payload.decode('utf-8')}")
 
-    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
-        sock.bind((ip, port))
-        sock.listen()
-        sock.settimeout(1)
+    with Listener(port, ip) as listener:
+        listener.start()
 
         while True:
-            try:
-                connection, _ = sock.accept()
-            except TimeoutError:
-                continue  # Loop, allowing keyboard interrupts to register.
+            connection = listener.accept()
             threading.Thread(
                 target=handle_connection, args=(connection,), daemon=True
             ).start()
