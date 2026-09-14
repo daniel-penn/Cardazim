@@ -10,6 +10,9 @@ def run_server(ip, port):
     lock = threading.Lock()
 
     def handle_connection(connection):
+        """
+        Handle a single given connection. Currently prints data.
+        """
         with connection:
             chunks = []
             while True:
