@@ -1,5 +1,6 @@
 import argparse
 import socket
+import struct
 import threading
 
 
@@ -21,8 +22,10 @@ def run_server(ip, port):
                     break
                 chunks.append(data)
             received_data = b"".join(chunks)
+            data_length = struct.unpack("<I", received_data[:4])[0]
+            payload = received_data[4:4 + data_length]
             with lock:
-                print(f"Received data: {received_data.decode('utf-8')}")
+                print(f"Received data: {payload.decode('utf-8')}")
 
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
         sock.bind((ip, port))
