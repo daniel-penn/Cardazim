@@ -13,11 +13,11 @@ def send_data(server_ip, server_port, data: bytes):
     Send data to server in address (server_ip, server_port).
     """
     if isinstance(data, str):
-        data = data.encode('utf-8')
-    data_length = struct.pack('<I', len(data))
+        data = data.encode("utf-8")
+    data_length = struct.pack("<I", len(data))
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
         sock.connect((server_ip, server_port))
-        sock.sendall(data_length+data)
+        sock.sendall(data_length + data)
 
 
 ###########################################################
