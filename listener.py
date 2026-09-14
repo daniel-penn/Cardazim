@@ -9,6 +9,7 @@ class Listener:
         self.port = port
         self.backlog = backlog
         self.connection = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.connection.settimeout(1.0)
 
     def __repr__(self) -> str:
         return f"{type(self).__name__}(port={self.port}, host={self.host}, backlog={self.backlog})"
@@ -21,8 +22,12 @@ class Listener:
         self.connection.close()
 
     def accept(self):
-        connection, _ = self.connection.accept()
-        return Connection(connection)
+        while True:
+            try:
+                connection, _ = self.connection.accept()
+            except TimeoutError:
+                continue  # Allow escape (eg keyboardinterrupt)
+            return Connection(connection)
 
     def __enter__(self):
         return self
