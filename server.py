@@ -32,7 +32,7 @@ def run_server(ip, port):
         while True:
             try:
                 connection, _ = sock.accept()
-            except socket.timeout:
+            except TimeoutError:
                 continue  # Loop, allowing keyboard interrupts to register.
             threading.Thread(
                 target=handle_connection, args=(connection,), daemon=True
