@@ -41,7 +41,7 @@ def main():
     try:
         send_data(args.server_ip, args.server_port, args.data)
         print("Done.")
-    except Exception as error:
+    except Exception as error:  # noqa: BLE001
         print(f"ERROR: {error}")
         return 1
 
