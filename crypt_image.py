@@ -8,6 +8,12 @@ from PIL import Image
 
 
 class CryptImage:
+    """
+    Class that stores an encryptable image.
+    Attributes:
+        image: Encrypted or unencrypted PIL.Image.Image.
+        key_hash: Hash of the aes key used to encrypt the image or None if it isn't encrypted.
+    """
     DEFAULT_NONCE = b"arazim"
 
     def __init__(self, image: Image.Image, key_hash: bytes | None = None):
@@ -19,6 +25,10 @@ class CryptImage:
         return cls(Image.open(path))
 
     def encrypt(self, key_string: str):
+        """
+        Encrypt the image under a key derived from key_string.
+        Sets self.key_hash to a hash of said derived key.
+        """
         aes_key = hashlib.sha256(key_string.encode("utf-8")).digest()
         self.key_hash = hashlib.sha256(aes_key).digest()
         image_bytes = self.image.tobytes()
@@ -29,6 +39,11 @@ class CryptImage:
         self.image = encrypted_image
 
     def decrypt(self, key_string: str):
+        """
+        Attempt to decrypt the image by deriving a key from key_string.
+        Hashes key against key_hash to test for correctness. Only decrypts if hashes match.
+        Returns True on success and False otherwise.
+        """
         guessed_aes_key = hashlib.sha256(key_string.encode("utf-8")).digest()
         guessed_key_hash = hashlib.sha256(guessed_aes_key).digest()
         if guessed_key_hash != self.key_hash:
@@ -43,6 +58,10 @@ class CryptImage:
         self.image = decrypted_image
 
     def serialize(self) -> bytes:
+        """
+        Serialize the CryptImage into bytes via the following protocol:
+        [height: int32][width: int32][image_bytes: height*width*3][key_hash]
+        """
         height_bytes = struct.pack("<I", self.image.size[1])
         width_bytes = struct.pack("<I", self.image.size[0])
         image_bytes = self.image.tobytes()
@@ -54,6 +73,9 @@ class CryptImage:
 
     @classmethod
     def deserialize(cls, serialization: bytes) -> CryptImage:
+        """
+        Alt init method to deserialize a CryptImage from serialized bytes.
+        """
 
         height, width = struct.unpack_from("<II", serialization)
         image_length = width * height * 3
