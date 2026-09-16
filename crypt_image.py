@@ -87,3 +87,6 @@ class CryptImage:
 
     def _show(self):
         self.image.show()
+
+    def save_image(self,path):
+        self.image.save(path)
