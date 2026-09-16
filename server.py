@@ -2,6 +2,7 @@ import argparse
 import threading
 
 from card import Card
+from card_manager import CardManager
 from listener import Listener
 
 
@@ -10,6 +11,7 @@ def run_server(ip, port):
     Blocking process that listens to a port and IP and prints all data received.
     """
     lock = threading.Lock()
+    manager = CardManager()
 
     def handle_connection(connection):
         """
@@ -20,6 +22,8 @@ def run_server(ip, port):
             with lock:
                 card = Card.deserialize(payload)
                 print(card)
+                manager.save(card, "./data/unsolved")
+
 
     with Listener(port, ip) as listener:
         listener.start()
