@@ -1,6 +1,7 @@
 import argparse
 import threading
 
+from card import Card
 from listener import Listener
 
 
@@ -17,7 +18,8 @@ def run_server(ip, port):
         with connection:
             payload = connection.receive_message()
             with lock:
-                print(f"Received data: {payload.decode('utf-8')}")
+                card = Card.deserialize(payload)
+                print(card)
 
     with Listener(port, ip) as listener:
         listener.start()
