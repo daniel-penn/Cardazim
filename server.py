@@ -6,7 +6,7 @@ from card_manager import CardManager
 from listener import Listener
 
 
-def run_server(ip, port):
+def run_server(ip, port, database_path):
     """
     Blocking process that listens to a port and IP and prints all data received.
     """
@@ -22,7 +22,7 @@ def run_server(ip, port):
             with lock:
                 card = Card.deserialize(payload)
                 print(card)
-                manager.save(card, "./data/unsolved")
+                manager.save(card, database_path)
 
 
     with Listener(port, ip) as listener:
@@ -40,12 +40,13 @@ def get_args():
 
     parser.add_argument("server_ip", type=str, help="the server's listening ip")
     parser.add_argument("server_port", type=int, help="the server's listening port")
+    parser.add_argument("database_path", type=str, help="path for card database")
     return parser.parse_args()
 
 
 def main():
     args = get_args()
-    run_server(args.server_ip, args.server_port)
+    run_server(args.server_ip, args.server_port, args.database_path)
 
 
 if __name__ == "__main__":
